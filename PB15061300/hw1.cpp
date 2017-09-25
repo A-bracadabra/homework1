@@ -1,9 +1,6 @@
 #include "SubImageMatch.h"
 
-//函数功能：将bgr图像转化成灰度图像
-//bgrImg：彩色图，像素排列顺序是bgr
-//grayImg：灰度图，单通道
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_ConvertBgr2Gray(Mat bgrImg, Mat & grayImg)
 {
 	if (NULL == grayImg.data || NULL == bgrImg.data)
@@ -14,7 +11,6 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat & grayImg)
 	int nRows = bgrImg.rows;
 	int nCols = bgrImg.cols;
 	uchar *bgr = bgrImg.data, *gray = grayImg.data;
-	//int* grayValue = new int[nRows*nCols];
 	int length = nRows*nCols;
 	for (int i=0; i < length; i++)
 	{
@@ -23,11 +19,6 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat & grayImg)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：根据灰度图像计算梯度图像
-//grayImg：灰度图，单通道
-//gradImg_x：水平方向梯度，浮点类型图像，CV32FC1
-//gradImg_y：垂直方向梯度，浮点类型图像，CV32FC1
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
 int ustc_CalcGrad(Mat grayImg, Mat & gradImg_x, Mat & gradImg_y)
 {
 	if (NULL == grayImg.data || NULL == gradImg_x.data || NULL == gradImg_y.data)
@@ -69,12 +60,7 @@ int ustc_CalcGrad(Mat grayImg, Mat & gradImg_x, Mat & gradImg_y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：根据水平和垂直梯度，计算角度和幅值图
-//gradImg_x：水平方向梯度，浮点类型图像，CV32FC1
-//gradImg_y：垂直方向梯度，浮点类型图像，CV32FC1
-//angleImg：角度图，浮点类型图像，CV32FC1
-//magImg：幅值图，浮点类型图像，CV32FC1
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat & angleImg, Mat & magImg)
 {
 	if (NULL == gradImg_x.data || NULL == gradImg_y.data || NULL == angleImg.data || NULL == magImg.data)
@@ -101,11 +87,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat & angleImg, Mat & magImg
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：对灰度图像进行二值化
-//grayImg：灰度图，单通道
-//binaryImg：二值图，单通道
-//th：二值化阈值，高于此值，255，低于此值0
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_Threshold(Mat grayImg, Mat & binaryImg, int th)
 {
 	if (NULL == grayImg.data || NULL == binaryImg.data)
@@ -124,11 +106,7 @@ int ustc_Threshold(Mat grayImg, Mat & binaryImg, int th)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：对灰度图像计算直方图
-//grayImg：灰度图，单通道
-//hist：直方图
-//hist_len：直方图的亮度等级，直方图数组的长度
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_CalcHist(Mat grayImg, int * hist, int hist_len)
 {
 	if (NULL == grayImg.data)
@@ -148,12 +126,7 @@ int ustc_CalcHist(Mat grayImg, int * hist, int hist_len)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：利用亮度进行子图匹配
-//grayImg：灰度图，单通道
-//subImg：模板子图，单通道
-//x：最佳匹配子图左上角x坐标
-//y：最佳匹配子图左上角y坐标
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int * x, int * y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
@@ -185,6 +158,8 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int * x, int * y)
 				}
 				gray += dCols;
 				if ((min - sum) >> 31)break;
+				//sub = sub + dCols;
+				//gray += dCols;
 			}
 			min = !((sum - min) >> 31)*min + !((min - sum) >> 31)*sum;
 			finex = !(sum^min)*j + ((sum^min) && 1)*finex;
@@ -198,12 +173,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int * x, int * y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：利用色彩进行子图匹配
-//colorImg：彩色图，三通单
-//subImg：模板子图，三通道
-//x：最佳匹配子图左上角x坐标
-//y：最佳匹配子图左上角y坐标
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int * x, int * y)
 {
 	if (NULL == colorImg.data || NULL == subImg.data)
@@ -249,12 +219,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int * x, int * y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：利用亮度相关性进行子图匹配
-//grayImg：灰度图，单通道
-//subImg：模板子图，单通道
-//x：最佳匹配子图左上角x坐标
-//y：最佳匹配子图左上角y坐标
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int * x, int * y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
@@ -270,47 +235,54 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int * x, int * y)
 	int finex = 0, finey = 0;
 	uchar *sub = subImg.data, *gray = grayImg.data, *gray0 = gray;
 	int i, j, k, l;
-	int max = 0;
+	float max = 0;
 	int subD = 0, grayD = 0, D = 0;
-	_int64 Div;
+	int *graySqu = new int[grayImg.rows*grayImg.cols];
+	int *grayP = graySqu;
+	float Div;
 	for (i = subRows*subCols; i; --i, sub++)
 	{
 		subD += *sub**sub;
+		*grayP++ = *gray**gray++;
+	}
+	for (i = grayImg.rows*grayImg.cols - subRows*subCols; i; --i)
+	{
+		*grayP++ = *gray**gray++;
 	}
 	for (i = 0; i < nRows; ++i)
 	{
 		for (j = 0; j < nCols; ++j)
 		{
-			for (sub = subImg.data, gray = gray0, k = subRows, grayD = 0, D = 0; k; --k)
+			for (sub = subImg.data, gray = gray0, grayP = graySqu, k = subRows, grayD = 0, D = 0; k; --k)
 			{
-				for (l = subCols; l; --l, ++sub, ++gray)
+				for (l = subCols; l; --l, ++sub, ++gray, ++grayP)
 				{
-					grayD += *gray**gray;
+					grayD += *grayP;
 					D += *gray**sub;
 				}
 				gray += dCols;
+				grayP += dCols;
 			}
 			Div = D;
-			Div = Div << 8;
 			Div = Div / subD*Div / grayD;
-			max = !((max - Div) >> 31)*max + !((Div - max) >> 31)*Div;
-			finex = !(Div^max)*j + ((Div^max) && 1)*finex;
-			finey = !(Div^max)*i + ((Div^max) && 1)*finey;
+			if (max < Div)
+			{
+				max = Div;
+				finex = j;
+				finey = i;
+			}
 			++gray0;
+			++graySqu;
 		}
 		gray0 = gray0 + (subCols - 1);
+		graySqu = graySqu + (subCols - 1);
 	}
 	*x = finex;
 	*y = finey;
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：利用角度值进行子图匹配
-//grayImg：灰度图，单通道
-//subImg：模板子图，单通道
-//x：最佳匹配子图左上角x坐标
-//y：最佳匹配子图左上角y坐标
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int * x, int * y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
@@ -422,12 +394,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int * x, int * y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：利用幅值进行子图匹配
-//grayImg：灰度图，单通道
-//subImg：模板子图，单通道
-//x：最佳匹配子图左上角x坐标
-//y：最佳匹配子图左上角y坐标
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int * x, int * y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
@@ -533,12 +500,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int * x, int * y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//函数功能：利用直方图进行子图匹配
-//grayImg：灰度图，单通道
-//subImg：模板子图，单通道
-//x：最佳匹配子图左上角x坐标
-//y：最佳匹配子图左上角y坐标
-//返回值：SUB_IMAGE_MATCH_OK 或者 SUB_IMAGE_MATCH_FAIL
+
 int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int * x, int * y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
